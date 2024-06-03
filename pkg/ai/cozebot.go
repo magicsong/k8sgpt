@@ -32,8 +32,8 @@ type CozeBotConfig struct {
 
 func (c *CozeBotClient) Configure(config IAIConfig) error {
 	token := config.GetPassword()
-	baseURL := "https://api.coze.com"
-	botID := "7373515642059866118"
+	baseURL := config.GetBaseURL()
+	botID := config.GetExtraConfig()["bot_id"]
 	conversationID := "1234"
 
 	if baseURL == "" || token == "" || botID == "" || conversationID == "" {
