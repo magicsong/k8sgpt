@@ -34,7 +34,7 @@ func (c *CozeBotClient) Configure(config IAIConfig) error {
 	token := config.GetPassword()
 	baseURL := config.GetBaseURL()
 	botID := config.GetExtraConfig()["bot_id"]
-	conversationID := "1234"
+	conversationID := "123457"
 
 	if baseURL == "" || token == "" || botID == "" || conversationID == "" {
 		return errors.New("missing required configuration values")
@@ -66,7 +66,7 @@ func (c *CozeBotClient) GetCompletion(ctx context.Context, query string) (string
 	requestBody, err := json.Marshal(map[string]interface{}{
 		"conversation_id": c.conversationID,
 		"bot_id":          c.botID,
-		"user":            "123333333",
+		"user":            "12333333",
 		"query":           query,
 		"stream":          false,
 	})
@@ -78,50 +78,54 @@ func (c *CozeBotClient) GetCompletion(ctx context.Context, query string) (string
 	if err != nil {
 		return "", err
 	}
-
 	req.Header.Set("Authorization", "Bearer "+c.token)
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "*/*")
-	req.Header.Set("Host", "api.coze.com")
+	req.Header.Set("Host", c.baseURL[7:])
 	req.Header.Set("Connection", "keep-alive")
-
 	var lastError error
 	for retries := 0; retries < 3; retries++ {
-		resp, err := c.client.Do(req)
-		if err != nil {
-			return "", err
-		}
-		defer resp.Body.Close()
-
-		if resp.StatusCode != http.StatusOK {
-			lastError = errors.New("received non-OK response status: " + resp.Status)
-			continue
-		}
-
-		var response CozeBotResponse
-		err = json.NewDecoder(resp.Body).Decode(&response)
-		if err != nil {
-			return "", err
-		}
-
-		if response.Code != 0 {
-			if strings.Contains(response.Msg, "There are too many users now") {
-				fmt.Println("Too many users, retrying...")
-				time.Sleep(2 * time.Second)
-				continue
+		response, err := func() (string, error) {
+			resp, err := c.client.Do(req)
+			if err != nil {
+				return "", err
 			}
-			return "", errors.New("received error from server: " + response.Msg)
-		}
+			defer resp.Body.Close()
 
-		for _, message := range response.Messages {
-			if message.Role == "assistant" && message.Type == "answer" {
-				return message.Content, nil
+			if resp.StatusCode != http.StatusOK {
+				serverError := errors.New("received non-OK response status: " + resp.Status)
+				return "", serverError
 			}
-		}
 
-		return "", errors.New("no answer found in response")
+			var response CozeBotResponse
+			err = json.NewDecoder(resp.Body).Decode(&response)
+			if err != nil {
+				return "", err
+			}
+			//fmt.Printf("reponse is %v", response)
+			if response.Code != 0 {
+				if strings.Contains(response.Msg, "There are too many users now") {
+					fmt.Println("Too many users, retrying...")
+					time.Sleep(2 * time.Second)
+					return "", errors.New("too many users")
+				}
+				return "", errors.New("received error from server: " + response.Msg)
+			}
+
+			for _, message := range response.Messages {
+				if message.Role == "assistant" && message.Type == "answer" {
+					return message.Content, nil
+				}
+			}
+
+			return "", errors.New("no answer found in response")
+		}()
+		if err != nil {
+			lastError = err
+		} else {
+			return response, nil
+		}
 	}
-
 	return "", lastError
 }
 

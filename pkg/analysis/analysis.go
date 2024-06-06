@@ -303,7 +303,7 @@ func (a *Analysis) GetAIResults(output string, anonymize bool) error {
 			texts = append(texts, failure.Text)
 		}
 
-		promptTemplate := ai.PromptMap["default"]
+		promptTemplate := ai.PromptMap["coze"]
 		// If the resource `Kind` comes from an "integration plugin",
 		// maybe a customized prompt template will be involved.
 		if prompt, ok := ai.PromptMap[analysis.Kind]; ok {

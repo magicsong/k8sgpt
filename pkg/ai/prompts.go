@@ -1,8 +1,8 @@
 package ai
 
 const (
-	default_prompt = `Simplify the following Kubernetes error message delimited by triple dashes written in --- %s --- language; --- %s ---.
-	Provide the most possible solution in a step by step style in no more than 280 characters. Write the output in the following format:
+	default_prompt = `Simplify the following error message delimited by triple dashes written in --- %s --- language; --- %s ---.
+	Provide the most possible solution in a step by step style accord to supplied doc. Write the output in the following format:
 	Error: {Explain error here}
 	Solution: {Step by step solution here}
 	`
@@ -48,6 +48,7 @@ const (
 	  - Containers:
 	    - {list of container names}
 	`
+	coze_prompt = "%s"
 )
 
 var PromptMap = map[string]string{
@@ -56,4 +57,5 @@ var PromptMap = map[string]string{
 	"ConfigAuditReport":             trivy_conf_prompt,
 	"PrometheusConfigValidate":      prom_conf_prompt,
 	"PrometheusConfigRelabelReport": prom_relabel_prompt,
+	"coze":                          coze_prompt,
 }

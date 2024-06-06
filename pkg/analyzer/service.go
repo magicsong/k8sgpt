@@ -54,6 +54,22 @@ func (ServiceAnalyzer) Analyze(a common.Analyzer) ([]common.Result, error) {
 
 	for _, ep := range list.Items {
 		var failures []common.Failure
+		// fetch event
+		events, err := a.Client.GetClient().CoreV1().Events(a.Namespace).List(a.Context,
+			metav1.ListOptions{
+				FieldSelector: "involvedObject.name=" + ep.Name,
+			})
+
+		if err != nil {
+			return nil, err
+		}
+		for _, event := range events.Items {
+			if event.Type != "Normal" {
+				failures = append(failures, common.Failure{
+					Text: fmt.Sprintf("Service %s/%s has event %s", ep.Namespace, ep.Name, event.Message),
+				})
+			}
+		}
 
 		// Check for empty service
 		if len(ep.Subsets) == 0 {
