@@ -1771,6 +1771,8 @@ github.com/inconshreveable/mousetrap v1.1.0 h1:wN+x4NVGpMsO7ErUn/mUI3vEoE6Jt13X2
 github.com/inconshreveable/mousetrap v1.1.0/go.mod h1:vpF70FUmC8bwa3OWnCshd2FqLfsEA9PFc4w1p2J65bw=
 github.com/ionos-cloud/sdk-go/v6 v6.1.10 h1:3815Q2Hw/wc4cJ8wD7bwfsmDsdfIEp80B7BQMj0YP2w=
 github.com/ionos-cloud/sdk-go/v6 v6.1.10/go.mod h1:EzEgRIDxBELvfoa/uBN0kOQaqovLjUWEB7iW4/Q+t4k=
+github.com/janeczku/go-spinner v0.0.0-20150530144529-cf8ef1d64394 h1:X8X7KPD2Gfk34zCn4C47e5UxUK72Oz8sBpe6aiN1gZE=
+github.com/janeczku/go-spinner v0.0.0-20150530144529-cf8ef1d64394/go.mod h1:Z8lFST9wVOwMDDBpMpCCnpk93WKTb+UWT/4TTUxWZzA=
 github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 h1:BQSFePA1RWJOlocH6Fxy8MmwDt+yVQYULKfN0RoTN8A=
 github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99/go.mod h1:1lJo3i6rXxKeerYnT8Nvf0QmHCRC1n8sfWVwXF2Frvo=
 github.com/jmespath/go-jmespath v0.4.0 h1:BEgLn5cpjn8UN1mAw4NjwDrS35OdebyEtFe+9YPoQUg=

@@ -49,6 +49,8 @@ const (
 	    - {list of container names}
 	`
 	coze_prompt = "%s"
+
+	k8s_manifest_prompt = "You are an expert Kubernetes YAML generator, that only generates valid Kubernetes YAML manifests. You should never provide any explanations. You should always output raw YAML only, and always wrap the raw YAML with ```yaml. My requriment is %s"
 )
 
 var PromptMap = map[string]string{
@@ -58,4 +60,5 @@ var PromptMap = map[string]string{
 	"PrometheusConfigValidate":      prom_conf_prompt,
 	"PrometheusConfigRelabelReport": prom_relabel_prompt,
 	"coze":                          coze_prompt,
+	"k8s_manifest":                  k8s_manifest_prompt,
 }
