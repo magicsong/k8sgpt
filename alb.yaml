@@ -1,0 +1,38 @@
+---
+apiVersion: loadbalancer.vke.volcengine.com/v1beta1
+kind: ALBInstance
+metadata:
+  name: alb # ALBInstance 资源名称
+spec:
+  instanceID: "alb-2dgns526uiv41fi5***" # 已有 ALB 实例的 ID。
+  listeners:
+  - protocol: "HTTP" # 监听器的协议
+    port: 80 # 监听器协议为 HTTP 时的监听端口
+  - protocol: "HTTPS" # 监听器的协议
+    port: 443 # 监听器协议为 HTTPS 时的监听端口
+    certificateID: "cert-2wx20lm7uquww7oot***" # 监听器协议为 HTTPS 时默认全域名使用的服务器证书
+    domainExtensions:
+    - domain: "test.com" # 监听器协议为 HTTPS 时支持指定域名绑定服务器证书
+      certificateID: "cert-2wx20lo6vuww07oot***" # 监听器协议为 HTTPS 时支持指定域名绑定服务器证书
+    enableHTTP2: true
+    enableQUIC: true
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    service.beta.kubernetes.io/volcengine-loadbalancer-id: "clb-mim02n8g5kw05smt1b******"
+    # 必填，已有负载均衡实例的 ID
+  name: clb-service # 服务的名称
+  namespace: default # 服务所属的命名空间
+spec:
+  externalTrafficPolicy: Cluster
+  selector:
+    app: test # 通过标签选择器将服务与后端容器组（Pod）绑定
+  ports:
+  - name: test # 端口映射策略命名
+    port: 80 # 服务端口
+    protocol: TCP  # 端口通信协议 TCP/UDP
+    targetPort: 80 # 容器端口
+  type: LoadBalancer # 服务的类型

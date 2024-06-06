@@ -1,0 +1,49 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: faulty-deployment-secret
+  namespace: test-k8sgpt
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: faulty-app-secret
+  template:
+    metadata:
+      labels:
+        app: faulty-app-secret
+    spec:
+      containers:
+      - name: faulty-container
+        image: cr-helm-test-cn-beijing.cr.volces.com/cr-helm-test/socket_python:x0
+        ports:
+        - containerPort: 80
+        env:
+        - name: MANDATORY_ENV
+          valueFrom:
+            secretKeyRef:
+              name: non-existent-secret
+              key: some-key
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: faulty-deployment-image
+  namespace: test-k8sgpt
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: faulty-app
+  template:
+    metadata:
+      labels:
+        app: faulty-app
+    spec:
+      containers:
+      - name: faulty-container
+        image: non-existent-image:latest
+        ports:
+        - containerPort: 80
