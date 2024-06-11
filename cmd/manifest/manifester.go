@@ -22,6 +22,7 @@ import (
 	"github.com/k8sgpt-ai/k8sgpt/pkg/ai"
 	"github.com/k8sgpt-ai/k8sgpt/pkg/cache"
 	"github.com/k8sgpt-ai/k8sgpt/pkg/common"
+	"github.com/k8sgpt-ai/k8sgpt/pkg/kubernetes"
 	"github.com/k8sgpt-ai/k8sgpt/pkg/util"
 	"github.com/spf13/viper"
 )
@@ -35,6 +36,7 @@ type Manifester struct {
 	MaxConcurrency int
 	Namespace      string
 	Language       string
+	KubeClient     *kubernetes.Client
 }
 
 type (
@@ -53,7 +55,7 @@ type YamlOutput struct {
 	Yaml   string         `json:"yaml"`
 }
 
-func NewManifester(namespace string, maxConcurrency int) (*Manifester, error) {
+func NewManifester(namespace string, maxConcurrency int, noCache bool) (*Manifester, error) {
 	var configAI ai.AIConfiguration
 	if err := viper.UnmarshalKey("ai", &configAI); err != nil {
 		return nil, err
@@ -90,12 +92,31 @@ func NewManifester(namespace string, maxConcurrency int) (*Manifester, error) {
 		return nil, err
 	}
 
+	// Get kubernetes client from viper.
+	kubecontext := viper.GetString("kubecontext")
+	kubeconfig := viper.GetString("kubeconfig")
+	client, err := kubernetes.NewClient(kubecontext, kubeconfig)
+	if err != nil {
+		return nil, fmt.Errorf("initialising kubernetes client: %w", err)
+	}
+
+	// Load remote cache if it is configured.
+	cache, err := cache.GetCacheConfiguration()
+	if err != nil {
+		return nil, err
+	}
+
+	if noCache {
+		cache.DisableCache()
+	}
+
 	return &Manifester{
 		Context:        context.Background(),
 		AIClient:       aiClient,
 		Cache:          cacheConfig,
 		MaxConcurrency: maxConcurrency,
 		Namespace:      namespace,
+		KubeClient:     client,
 	}, nil
 }
 
@@ -127,6 +148,10 @@ func (m *Manifester) GenerateManifest(requirements string, anonymize bool) (stri
 		return "", err
 	}
 	return response, nil
+}
+
+func (m *Manifester) ApplyManifest(answer string) error {
+	return m.KubeClient.ApplyManifest(answer)
 }
 
 func (m *Manifester) Close() {
